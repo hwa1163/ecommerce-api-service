@@ -58,7 +58,7 @@ public class ProductLikeService {
                 return new ProductLikeResponse(
                         product.getId(),
                         product.getLikeCount(),
-                        false,
+                        true,
                         "이미 좋아요한 상품입니다."
                 );
             }
