@@ -38,7 +38,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
     }
-    
+
     /**
      * 그 외 예외 처리
      */
@@ -48,6 +48,9 @@ public class GlobalExceptionHandler {
         body.put("timestamp", LocalDateTime.now());
         body.put("status", 500);
         body.put("message", "서버 내부 오류가 발생했습니다.");
+
+        
+        e.printStackTrace();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(body);
     }

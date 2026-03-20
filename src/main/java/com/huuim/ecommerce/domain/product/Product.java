@@ -2,6 +2,7 @@ package com.huuim.ecommerce.domain.product;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import jakarta.persistence.Version;
 
 /*/
  * 상품 엔티티
@@ -14,6 +15,9 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "products")
 public class Product {
+
+    @Version
+    private Long version;
 
     //상품 PK
     @Id

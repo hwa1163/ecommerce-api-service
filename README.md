@@ -12,6 +12,8 @@
 - MySQL
 - Maven
 
+테스트는 POSTMAN을 사용하여 진행하였습니다.
+
 1. 회원가입
 
 Method: POST
@@ -71,7 +73,14 @@ page: 기본값 0
 size: 기본값 20
 
 호출 예시
+GET /api/v1/products
 GET /api/v1/products?sort=latest&page=0&size=20
+
+상품 목록 조회 - 가격 오름차순
+GET api/v1/products?sort=price_asc&page=0&size=20
+
+상품 목록 조회 - 좋아요 많은 순
+GET api/v1/products?sort=likes_desc&page=0&size=20
 
 
 4. 상품 좋아요 등록
