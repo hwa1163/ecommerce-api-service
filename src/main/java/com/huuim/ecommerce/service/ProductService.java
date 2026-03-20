@@ -1,7 +1,7 @@
 package com.huuim.ecommerce.service;
 
-import com.huuim.ecommerce.domain.Product;
 import com.huuim.ecommerce.dto.product.ProductListResponse;
+import com.huuim.ecommerce.domain.product.Product;
 import com.huuim.ecommerce.dto.product.ProductCreateRequest;
 import com.huuim.ecommerce.dto.product.ProductResponse;
 import com.huuim.ecommerce.repository.ProductRepository;

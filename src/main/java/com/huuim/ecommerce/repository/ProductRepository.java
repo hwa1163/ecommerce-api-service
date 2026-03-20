@@ -1,7 +1,8 @@
 package com.huuim.ecommerce.repository;
 
-import com.huuim.ecommerce.domain.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.huuim.ecommerce.domain.product.Product;
 
 /**
  * 상품 Repository

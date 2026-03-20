@@ -1,4 +1,4 @@
-package com.huuim.ecommerce.domain;
+package com.huuim.ecommerce.domain.product;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

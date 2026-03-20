@@ -1,7 +1,8 @@
 package com.huuim.ecommerce.dto.product;
 
-import com.huuim.ecommerce.domain.Product;
 import java.time.LocalDateTime;
+
+import com.huuim.ecommerce.domain.product.Product;
 
 /**
  * 상품 단건 응답 DTO
