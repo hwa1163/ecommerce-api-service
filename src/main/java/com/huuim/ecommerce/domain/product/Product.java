@@ -2,7 +2,6 @@ package com.huuim.ecommerce.domain.product;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import jakarta.persistence.Version;
 
 /*/
  * 상품 엔티티
@@ -17,7 +16,8 @@ import jakarta.persistence.Version;
 public class Product {
 
     @Version
-    private Long version;
+    @Column(nullable = false)
+    private Long version = 0L;
 
     //상품 PK
     @Id
@@ -82,6 +82,10 @@ public class Product {
         if (this.likeCount == null) {
             this.likeCount = 0L;
         }
+
+        if (this.version == null) {
+            this.version = 0L;
+        }
     }
     
     //엔티티 수정 전에 자동 실행
@@ -101,11 +105,18 @@ public class Product {
 
     //좋아요 수 증가
     public void increaseLikeCount() {
+        if (this.likeCount == null) {
+            this.likeCount = 0L;
+        }
         this.likeCount += 1;
     }
 
     //좋아요 수 감소    
     public void decreaseLikeCount() {
+        if (this.likeCount == null) {
+            this.likeCount = 0L;
+        }
+
         if (this.likeCount > 0) {
             this.likeCount -= 1;
         }
