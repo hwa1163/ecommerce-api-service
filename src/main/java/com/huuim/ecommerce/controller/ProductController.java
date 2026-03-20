@@ -29,10 +29,7 @@ public class ProductController {
 
     /**
      * 상품 등록
-     *
-     * 현재 단계에서는 실제 인증/인가 구현 대신
-     * 명세에 맞는 헤더 존재 여부만 체크한다.
-     *
+     * 명세에 맞는 헤더 존재 여부만 체크
      * POST /api/v1/products
      */
     @PostMapping
@@ -42,8 +39,7 @@ public class ProductController {
             @RequestBody ProductCreateRequest request
     ) {
         /**
-         * 인증이 주요 스코프는 아니라고 했지만,
-         * "인증 필요" 엔드포인트이므로 최소한 헤더 존재 여부는 체크한다.
+         * 최소한 헤더 존재 여부는 체크.
          */
         validateAuthHeaders(loginId, loginPw);
 
@@ -53,7 +49,6 @@ public class ProductController {
 
     /**
      * 상품 목록 조회
-     *
      * GET /api/v1/products?sort=latest&page=0&size=20
      */
     @GetMapping
@@ -68,9 +63,6 @@ public class ProductController {
 
     /**
      * 인증 헤더 존재 여부 검증
-     *
-     * 나중에 User 도메인과 붙이면
-     * 여기서 진짜 로그인 사용자 검증 로직으로 바꾸면 된다.
      */
     private void validateAuthHeaders(String loginId, String loginPw) {
         if (loginId == null || loginId.isBlank()) {
