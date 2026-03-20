@@ -83,17 +83,71 @@ GET api/v1/products?sort=price_asc&page=0&size=20
 GET api/v1/products?sort=likes_desc&page=0&size=20
 
 
-4. 상품 좋아요 등록
-Method: POST
-URI: /api/v1/products/{productId}/likes
+4-1. 상품 좋아요 등록
+POST http://localhost:8082/api/v1/products/1/likes
+X-Huuim-LoginId: user1
+X-Huuim-LoginPw: 1234
 
-예정
+body : x
+
+성공시:
+
+{
+  "productId": 1,
+  "likeCount": 1,
+  "liked": true,
+  "message": "좋아요가 등록되었습니다."
+}
+
+같은요청시:
+
+{
+  "productId": 1,
+  "likeCount": 1,
+  "liked": true,
+  "message": "좋아요가 등록되었습니다."
+}
+
+4-2. 상품 좋아요 취소
+
+DELETE http://localhost:8082/api/v1/products/1/likes
+X-Huuim-LoginId: user1
+X-Huuim-LoginPw: 1234
+
+body : x
+
+
+성공시:
+
+{
+  "productId": 1,
+  "likeCount": 0,
+  "liked": false,
+  "message": "좋아요가 취소되었습니다."
+}
+
+같은요청시:
+
+{
+  "productId": 1,
+  "likeCount": 0,
+  "liked": false,
+  "message": "이미 좋아요가 취소된 상태입니다."
+}
+
+
+- 내가 눌렀던 좋아요만 취소 가능
+- 좋아요 취소 시 상품의 likeCount가 1 감소
+- 이미 좋아요가 없는 상태에서 다시 취소 요청해도 에러를 내지 않고 멱등하게 처리
+- 동시성 이슈 대응을 위해 Product 엔티티에 낙관적 락(`@Version`)을 적용
 
 5. 주문 요청
 Method: POST
 URI: /api/v1/orders
 
 예정
+
+
 
 
 

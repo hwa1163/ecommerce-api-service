@@ -40,6 +40,19 @@ public class GlobalExceptionHandler {
     }
 
     /**
+     * 동시성 충돌 예외 처리
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException e) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", 409);
+        body.put("message", e.getMessage());
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    /**
      * 그 외 예외 처리
      */
     @ExceptionHandler(Exception.class)

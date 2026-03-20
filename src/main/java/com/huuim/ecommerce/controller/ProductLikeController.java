@@ -44,4 +44,19 @@ public class ProductLikeController {
         //새로 좋아요 생성되었든, 이미 좋아요 상태였든 정상 응답
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    /**
+     * 상품 좋아요 취소
+     * 이미 좋아요가 없는 상태여도 정상 응답 처리
+     */
+    @DeleteMapping
+    public ResponseEntity<ProductLikeResponse> unlikeProduct(
+            @PathVariable Long productId,
+            @RequestHeader(value = AuthService.LOGIN_ID_HEADER, required = false) String loginId,
+            @RequestHeader(value = AuthService.LOGIN_PW_HEADER, required = false) String loginPw
+    ) {
+        User user = authService.authenticate(loginId, loginPw);
+        ProductLikeResponse response = productLikeService.unlikeProduct(productId, user);
+        return ResponseEntity.ok(response);
+    }
 }

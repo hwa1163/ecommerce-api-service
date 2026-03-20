@@ -116,7 +116,8 @@ public class Product {
         if (this.likeCount == null) {
             this.likeCount = 0L;
         }
-
+        
+        //음수가 되지 않도록
         if (this.likeCount > 0) {
             this.likeCount -= 1;
         }
