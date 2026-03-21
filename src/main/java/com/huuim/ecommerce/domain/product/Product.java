@@ -12,8 +12,16 @@ import java.time.LocalDateTime;
  * - 좋아요 많은 순 정렬
 */
 @Entity
-@Table(name = "products")
+@Table(
+    name = "products",
+    indexes = {
+        @Index(name = "idx_product_created_at", columnList = "created_at"),
+        @Index(name = "idx_product_price", columnList = "price"),
+        @Index(name = "idx_product_like_count", columnList = "like_count")
+    }
+)
 public class Product {
+
 
     @Version
     @Column(nullable = false)
@@ -42,17 +50,17 @@ public class Product {
 
     //좋아요 수
     //이후 좋아요 등록/취소 시 이 값을 함께 증감
-    @Column(nullable = false)
-    private Long likeCount;
+    @Column(name = "like_count", nullable = false)
+    private Long likeCount = 0L;
 
     // 생성일시
     //latest 정렬 기준으로 사용
-    @Column(nullable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     
     //수정일시
-    @Column(nullable = false)
+    @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
     
