@@ -9,6 +9,7 @@ import com.huuim.ecommerce.repository.ProductRepository;
 
 import jakarta.persistence.OptimisticLockException;
 
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,6 +39,7 @@ public class ProductLikeService {
      * 
      * 아직 좋아요하지 않은 경우: ProductLike를 저장하고 Product.likeCount를 1 증가
      */
+    @CacheEvict(value = "productList", allEntries = true)
     @Transactional
     public ProductLikeResponse likeProduct(Long productId, User user) {
 
@@ -86,6 +88,7 @@ public class ProductLikeService {
      * - 좋아요 상태면 like 엔티티 삭제 + likeCount 감소
      * - 이미 좋아요하지 않은 상태면 아무것도 하지 않고 그대로
      */
+    @CacheEvict(value = "productList", allEntries = true)
     @Transactional
     public ProductLikeResponse unlikeProduct(Long productId, User user) {
         try {

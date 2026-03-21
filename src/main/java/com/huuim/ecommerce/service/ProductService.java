@@ -5,6 +5,9 @@ import com.huuim.ecommerce.domain.product.Product;
 import com.huuim.ecommerce.dto.product.ProductCreateRequest;
 import com.huuim.ecommerce.dto.product.ProductResponse;
 import com.huuim.ecommerce.repository.ProductRepository;
+
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +33,7 @@ public class ProductService {
      * 상품 등록
      * Controller에서 헤더 존재 여부를 확인한 뒤 호출.
      */
+    @CacheEvict(value = "productList", allEntries = true)
     public ProductResponse createProduct(ProductCreateRequest request) {
         validateCreateRequest(request);
 
@@ -50,6 +54,10 @@ public class ProductService {
      * - page: 기본값 0
      * - size: 기본값 20
      */
+    @Cacheable(
+            value = "productList",
+            key = "#sort + '_' + #page + '_' + #size"
+    )
     public ProductListResponse getProducts(String sort, int page, int size) {
         
         Pageable pageable = PageRequest.of(page, size, resolveSort(sort));
