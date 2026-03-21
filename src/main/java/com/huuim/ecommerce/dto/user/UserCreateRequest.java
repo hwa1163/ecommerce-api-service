@@ -26,5 +26,19 @@ public class UserCreateRequest {
 
     public String getName() {
         return name;
+
     }
+    //테스트 코드와 JSON 바인딩을 위한 setter
+    public void setLoginId(String loginId) {
+        this.loginId = loginId;
+    }
+
+    public void setLoginPw(String loginPw) {
+        this.loginPw = loginPw;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
 }

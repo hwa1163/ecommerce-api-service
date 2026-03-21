@@ -35,4 +35,22 @@ public class ProductCreateRequest {
     public Integer getStock() {
         return stock;
     }
+
+    //테스트 코드와 JSON 바인딩을 위한 setter
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setBrand(String brand) {
+        this.brand = brand;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
+    }
+
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
+
 }
