@@ -243,7 +243,7 @@ Controller 테스트
 
 
 ## 4. ERD
-``'mermaid
+```mermaid
 erDiagram
     USERS ||--o{ ORDERS : places
     USERS ||--o{ PRODUCT_LIKES : likes
@@ -294,6 +294,7 @@ erDiagram
         INT unit_price
         BIGINT order_price
     }
+```
 
 ###  관계 설명
 
@@ -305,7 +306,7 @@ erDiagram
 
 
 ## 5. 프로젝트구조
-'''text
+```text
 src
 ├─ main
 │  ├─ java
@@ -373,6 +374,7 @@ src
                │  └─ OrderControllerTest.java
                └─ service
                   └─ OrderServiceConcurrencyTest.java
+```
 
 ### 구조 설명
 
