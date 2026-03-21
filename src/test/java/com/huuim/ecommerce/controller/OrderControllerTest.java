@@ -18,8 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 /**
  * Order API 예외 케이스 테스트
@@ -85,6 +88,7 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                 )
+                .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
@@ -114,6 +118,7 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                 )
+                .andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
@@ -146,6 +151,59 @@ class OrderControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request))
                 )
+                .andDo(print())
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("여러 상품 주문 성공 및 재고 차감 검증")
+    void order_success() throws Exception {
+
+        // given
+        User user = createUser();
+
+        // 상품 2개 생성
+        Product product1 = createProduct(10); // 재고 10
+        Product product2 = createProduct(5);  // 재고 5
+
+        // 주문 요청 구성
+        OrderCreateItemRequest item1 = new OrderCreateItemRequest();
+        item1.setProductId(product1.getId());
+        item1.setQuantity(2); // 2개 주문
+
+        OrderCreateItemRequest item2 = new OrderCreateItemRequest();
+        item2.setProductId(product2.getId());
+        item2.setQuantity(1); // 1개 주문
+
+        OrderCreateRequest request = new OrderCreateRequest();
+        request.setItems(List.of(item1, item2));
+
+        // when
+        mockMvc.perform(post("/api/v1/orders")
+                        .header("X-Huuim-LoginId", user.getLoginId())
+                        .header("X-Huuim-LoginPw", user.getLoginPw())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request))
+                )
+                .andDo(print())
+                // then
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.userId").value(user.getId()))
+                .andExpect(jsonPath("$.items.length()").value(2))
+                .andExpect(jsonPath("$.totalPrice").value(
+                        (product1.getPrice() * 2) + (product2.getPrice() * 1)
+                ));
+
+        /**
+         * 🔥 핵심 검증 1: 재고 감소 확인
+         */
+        Product updatedProduct1 = productRepository.findById(product1.getId()).orElseThrow();
+        Product updatedProduct2 = productRepository.findById(product2.getId()).orElseThrow();
+
+        // product1: 10 - 2 = 8
+        assertThat(updatedProduct1.getStock()).isEqualTo(8);
+
+        // product2: 5 - 1 = 4
+        assertThat(updatedProduct2.getStock()).isEqualTo(4);
     }
 }
