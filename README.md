@@ -14,6 +14,43 @@
 
 테스트는 테스트용 컨트롤러 및 POSTMAN을 사용하여 진행하였습니다.
 
+### 실행방법
+
+1) MySQL DB 생성
+
+```sql
+CREATE DATABASE huuim;
+```
+
+2) application.yml
+```text
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/huuim
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update  
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+
+server:
+  port: 8082
+```
+3) 실행
+.\mvnw.cmd spring-boot:run
+
 ## 2. 주요 기능
 
 - 회원가입
