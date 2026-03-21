@@ -22,7 +22,7 @@
 - 주문 생성 (다중 상품 주문 가능)
 
 1. 회원가입
-
+```text
 Method: POST
 URI: /api/v1/users
 
@@ -217,7 +217,7 @@ body :
 //mvn -Dtest=OrderControllerTest test
 
 5개 요청 → 3개 성공, 2개 실패 검증 완료
-
+```
 
 ## 동시성
 
