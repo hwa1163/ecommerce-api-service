@@ -1,10 +1,12 @@
 package com.huuim.ecommerce.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.huuim.ecommerce.domain.order.Order;
 import com.huuim.ecommerce.domain.product.Product;
 import com.huuim.ecommerce.domain.user.User;
 import com.huuim.ecommerce.dto.order.OrderCreateItemRequest;
 import com.huuim.ecommerce.dto.order.OrderCreateRequest;
+import com.huuim.ecommerce.repository.OrderRepository;
 import com.huuim.ecommerce.repository.ProductRepository;
 import com.huuim.ecommerce.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +18,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -45,6 +48,9 @@ class OrderControllerTest {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private OrderRepository orderRepository;
 
     //JSON 변환용 객체
     @Autowired
@@ -178,6 +184,8 @@ class OrderControllerTest {
         OrderCreateRequest request = new OrderCreateRequest();
         request.setItems(List.of(item1, item2));
 
+        int expectedTotalPrice = (product1.getPrice() * 2) + (product2.getPrice() * 1);
+
         // when
         mockMvc.perform(post("/api/v1/orders")
                         .header("X-Huuim-LoginId", user.getLoginId())
@@ -205,5 +213,40 @@ class OrderControllerTest {
 
         // product2: 5 - 1 = 4
         assertThat(updatedProduct2.getStock()).isEqualTo(4);
+
+        //2. 주문 자체가 실제 DB에 저장되었는지 검증
+        List<Order> orders = orderRepository.findAll();
+        assertThat(orders).hasSize(1);
+
+        Order savedOrder = orders.get(0);
+
+        //3. 주문 총액 검증
+        assertThat(savedOrder.getTotalPrice()).isEqualTo((long) expectedTotalPrice);
+
+        //4. 주문한 사용자 검증
+        assertThat(savedOrder.getUser().getId()).isEqualTo(user.getId());
+
+        //5. 주문 상세 항목 개수 검증
+        assertThat(savedOrder.getOrderItems()).hasSize(2);
+
+        //6. 주문 상세 내용을 안정적으로 검증하기 위해 productId 순으로 정렬 후 확인 
+        var savedItem1 = savedOrder.getOrderItems().stream()
+                .filter(orderItem -> orderItem.getProduct().getId().equals(product1.getId()))
+                .findFirst()
+                .orElseThrow();
+
+        var savedItem2 = savedOrder.getOrderItems().stream()
+                .filter(orderItem -> orderItem.getProduct().getId().equals(product2.getId()))
+                .findFirst()
+                .orElseThrow();
+
+        assertThat(savedItem1.getQuantity()).isEqualTo(2);
+        assertThat(savedItem1.getUnitPrice()).isEqualTo(product1.getPrice());
+        assertThat(savedItem1.getOrderPrice()).isEqualTo((long) product1.getPrice() * 2);
+
+        assertThat(savedItem2.getQuantity()).isEqualTo(1);
+        assertThat(savedItem2.getUnitPrice()).isEqualTo(product2.getPrice());
+        assertThat(savedItem2.getOrderPrice()).isEqualTo((long) product2.getPrice());
     }
+    
 }
