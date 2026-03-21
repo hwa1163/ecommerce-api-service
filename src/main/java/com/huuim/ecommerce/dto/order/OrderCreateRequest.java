@@ -17,4 +17,9 @@ public class OrderCreateRequest {
     public List<OrderCreateItemRequest> getItems() {
         return items;
     }
+
+    //테스트 코드나 JSON 바인딩 시 값을 넣기 위한 setter
+    public void setItems(List<OrderCreateItemRequest> items) {
+        this.items = items;
+    }
 }
