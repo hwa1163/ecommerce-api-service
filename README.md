@@ -243,7 +243,7 @@ Controller 테스트
 
 
 ## 4. ERD
-
+``'mermaid
 erDiagram
     USERS ||--o{ ORDERS : places
     USERS ||--o{ PRODUCT_LIKES : likes
@@ -305,7 +305,7 @@ erDiagram
 
 
 ## 5. 프로젝트구조
-
+'''text
 src
 ├─ main
 │  ├─ java
