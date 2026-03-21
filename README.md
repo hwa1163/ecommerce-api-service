@@ -14,6 +14,13 @@
 
 테스트는 테스트용 컨트롤러 및 POSTMAN을 사용하여 진행하였습니다.
 
+## 2. 주요 기능
+
+- 회원가입
+- 상품 등록 및 조회
+- 상품 좋아요 등록/취소 (멱등성 처리)
+- 주문 생성 (다중 상품 주문 가능)
+
 1. 회원가입
 
 Method: POST
@@ -21,19 +28,21 @@ URI: /api/v1/users
 
 Request
 {
-  "loginId": "user1",
-  "loginPw": "1234",
-  "name": "홍길동"
+  "loginId": "huuim1",
+  "loginPw": "huuim1124",
+  "name": "김민희"
 }
 
 Response 예시
 {
   "id": 1,
-  "loginId": "user1",
-  "name": "홍길동",
+  "loginId": "huuim1",
+  "name": "김민희",
   "createdAt": "2026-03-20T21:10:00"
 };
 
+//.\mvnw.cmd -Dtest=UserControllerTest test
+// mvn -Dtest=UserControllerTest test
 
 2. 상품 등록
 
@@ -41,23 +50,23 @@ Method: POST
 URI: /api/v1/products
 
 Headers
-X-Huuim-LoginId: user1
-X-Huuim-LoginPw: 1234
+X-Huuim-LoginId: huuim1
+X-Huuim-LoginPw: huuim1124
 Content-Type: application/json
 
 Request
 {
-  "name": "에어맥스 97",
+  "name": "웰컴 투 휴이엠 모이스처 밤 (100ml)",
   "brand": "NIKE",
-  "price": 199000,
+  "price": 24000,
   "stock": 10
 }
 Response 예시
 {
   "id": 1,
-  "name": "에어맥스 97",
+  "name": "웰컴 투 휴이엠 모이스처 밤 (100ml)",
   "brand": "NIKE",
-  "price": 199000,
+  "price": 24000,
   "stock": 10,
   "likeCount": 0,
   "createdAt": "2026-03-20T21:20:00"
@@ -81,6 +90,9 @@ GET api/v1/products?sort=price_asc&page=0&size=20
 
 상품 목록 조회 - 좋아요 많은 순
 GET api/v1/products?sort=likes_desc&page=0&size=20
+
+// .\mvnw.cmd -Dtest=ProductControllerTest test
+// mvn -Dtest=ProductControllerTest test
 
 
 4-1. 상품 좋아요 등록
@@ -147,6 +159,9 @@ body : x
 이미 좋아요한 상품에 다시 좋아요 요청해도 liked=true
 이미 좋아요가 없는 상품에 다시 취소 요청해도 liked=false
 
+// .\mvnw.cmd -Dtest=ProductLikeControllerTest test
+// mvn -Dtest=ProductLikeControllerTest test
+
 5. 주문 요청
 Method: POST
 URI: /api/v1/orders
@@ -172,15 +187,15 @@ body :
 {
     "orderId": 2,
     "userId": 1,
-    "totalPrice": 434000,
+    "totalPrice": 84 000,
     "createdAt": "2026-03-21T23:29:06.5595971",
     "items": [
         {
             "productId": 1,
-            "productName": "에어맥스 97",
+            "productName": "웰컴 투 휴이엠 모이스처 밤 (100ml)",
             "quantity": 2,
-            "unitPrice": 199000,
-            "orderPrice": 398000
+            "unitPrice": 24000,
+            "orderPrice": 48000
         },
         {
             "productId": 18,
@@ -198,30 +213,177 @@ body :
     "message": "해당 상품을 찾을 수 없습니다. productId = 17"
 }
 
+//.\mvnw.cmd -Dtest=OrderControllerTest test
+//mvn -Dtest=OrderControllerTest test
+
+5개 요청 → 3개 성공, 2개 실패 검증 완료
+
 
 ## 동시성
 
 주문 시 상품을 PESSIMISTIC_WRITE 락으로 조회
-
 동시에 같은 상품을 주문해도 재고 정합성이 깨지지 않도록 처리
 
 ## 일관성
 
 주문 생성과 재고 차감을 하나의 트랜잭션으로 묶음
-
 중간 실패 시 전체 롤백
 
 ## 멱등성
 
 현재는 명시적 idempotency key는 없지만,
-
 구조상 추후 Idempotency-Key 헤더로 확장 가능
 
 
+## 3. 테스트
+Controller 테스트
+동시성 테스트 (멀티 스레드)
+
+.\mvnw.cmd test 또는 mvn test
 
 
+## 4. ERD
 
-6. 기술 고려사항
+erDiagram
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ PRODUCT_LIKES : likes
+    PRODUCTS ||--o{ PRODUCT_LIKES : liked_by
+    ORDERS ||--|{ ORDER_ITEMS : contains
+    PRODUCTS ||--o{ ORDER_ITEMS : included_in
+
+    USERS {
+        BIGINT id PK
+        VARCHAR login_id
+        VARCHAR login_pw
+        VARCHAR name
+        DATETIME created_at
+        DATETIME updated_at
+    }
+
+    PRODUCTS {
+        BIGINT id PK
+        VARCHAR name
+        VARCHAR brand
+        INT price
+        INT stock
+        BIGINT like_count
+        BIGINT version
+        DATETIME created_at
+        DATETIME updated_at
+    }
+
+    PRODUCT_LIKES {
+        BIGINT id PK
+        BIGINT user_id FK
+        BIGINT product_id FK
+        DATETIME created_at
+    }
+
+    ORDERS {
+        BIGINT id PK
+        BIGINT user_id FK
+        BIGINT total_price
+        DATETIME created_at
+    }
+
+    ORDER_ITEMS {
+        BIGINT id PK
+        BIGINT order_id FK
+        BIGINT product_id FK
+        INT quantity
+        INT unit_price
+        BIGINT order_price
+    }
+
+###  관계 설명
+
+- User 1명은 여러 개의 Order를 가진다.
+- User 1명은 여러 상품에 좋아요를 누를 수 있다.
+- Product 1개는 여러 사용자에게 좋아요를 받을 수 있다.
+- Order 1건은 여러 개의 OrderItem을 가질 수 있다.
+- OrderItem은 주문 시점의 상품 가격과 수량을 별도로 저장
+
+
+## 5. 프로젝트구조
+
+src
+├─ main
+│  ├─ java
+│  │  └─ com
+│  │     └─ huuim
+│  │        └─ ecommerce
+│  │           ├─ common
+│  │           │  ├─ auth
+│  │           │  │  └─ AuthService.java
+│  │           │  └─ exception
+│  │           │     └─ GlobalExceptionHandler.java
+│  │           ├─ controller
+│  │           │  ├─ UserController.java
+│  │           │  ├─ ProductController.java
+│  │           │  ├─ ProductLikeController.java
+│  │           │  └─ OrderController.java
+│  │           ├─ domain
+│  │           │  ├─ user
+│  │           │  │  └─ User.java
+│  │           │  ├─ product
+│  │           │  │  └─ Product.java
+│  │           │  ├─ like
+│  │           │  │  └─ ProductLike.java
+│  │           │  └─ order
+│  │           │     ├─ Order.java
+│  │           │     └─ OrderItem.java
+│  │           ├─ dto
+│  │           │  ├─ user
+│  │           │  │  ├─ UserCreateRequest.java
+│  │           │  │  └─ UserResponse.java
+│  │           │  ├─ product
+│  │           │  │  ├─ ProductCreateRequest.java
+│  │           │  │  ├─ ProductResponse.java
+│  │           │  │  └─ ProductListResponse.java
+│  │           │  ├─ like
+│  │           │  │  └─ ProductLikeResponse.java
+│  │           │  └─ order
+│  │           │     ├─ OrderCreateRequest.java
+│  │           │     ├─ OrderCreateItemRequest.java
+│  │           │     ├─ OrderResponse.java
+│  │           │     └─ OrderItemResponse.java
+│  │           ├─ repository
+│  │           │  ├─ UserRepository.java
+│  │           │  ├─ ProductRepository.java
+│  │           │  ├─ ProductLikeRepository.java
+│  │           │  ├─ OrderRepository.java
+│  │           │  └─ OrderItemRepository.java
+│  │           ├─ service
+│  │           │  ├─ UserService.java
+│  │           │  ├─ ProductService.java
+│  │           │  ├─ ProductLikeService.java
+│  │           │  └─ OrderService.java
+│  │           └─ EcommerceApplication.java
+│  └─ resources
+│     └─ application.yml
+└─ test
+   └─ java
+      └─ com
+         └─ huuim
+            └─ ecommerce
+               ├─ controller
+               │  ├─ UserControllerTest.java
+               │  ├─ ProductControllerTest.java
+               │  ├─ ProductLikeControllerTest.java
+               │  └─ OrderControllerTest.java
+               └─ service
+                  └─ OrderServiceConcurrencyTest.java
+
+### 구조 설명
+
+- `controller` : API 요청/응답 처리
+- `service` : 비즈니스 로직 처리
+- `repository` : DB 접근 계층
+- `domain` : 엔티티 클래스
+- `dto` : Request/Response 객체
+- `common` : 인증, 예외 처리 등 공통 기능
+
+## 7. 기술 고려사항
 
 과제 요구사항에 따라 아래 항목을 고려하여 구현합니다.
 동시성: 좋아요 수, 재고 처리 시 동시 요청 고려
