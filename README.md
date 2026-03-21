@@ -150,8 +150,72 @@ body : x
 5. 주문 요청
 Method: POST
 URI: /api/v1/orders
+X-Huuim-LoginId: user1
+X-Huuim-LoginPw: 1234
+Content-Type: application/json
 
-예정
+body : 
+{
+  "items": [
+    {
+      "productId": 1,
+      "quantity": 2
+    },
+    {
+      "productId": 18,
+      "quantity": 1
+    }
+  ]
+}
+
+성공시 : 
+{
+    "orderId": 2,
+    "userId": 1,
+    "totalPrice": 434000,
+    "createdAt": "2026-03-21T23:29:06.5595971",
+    "items": [
+        {
+            "productId": 1,
+            "productName": "에어맥스 97",
+            "quantity": 2,
+            "unitPrice": 199000,
+            "orderPrice": 398000
+        },
+        {
+            "productId": 18,
+            "productName": "웰컴 투 휴이엠 샴푸 1000m",
+            "quantity": 1,
+            "unitPrice": 36000,
+            "orderPrice": 36000
+        }
+    ]
+}
+
+없는 상품 주문시 : {
+    "timestamp": "2026-03-21T23:29:50.4263961",
+    "status": 400,
+    "message": "해당 상품을 찾을 수 없습니다. productId = 17"
+}
+
+
+## 동시성
+
+주문 시 상품을 PESSIMISTIC_WRITE 락으로 조회
+
+동시에 같은 상품을 주문해도 재고 정합성이 깨지지 않도록 처리
+
+## 일관성
+
+주문 생성과 재고 차감을 하나의 트랜잭션으로 묶음
+
+중간 실패 시 전체 롤백
+
+## 멱등성
+
+현재는 명시적 idempotency key는 없지만,
+
+구조상 추후 Idempotency-Key 헤더로 확장 가능
 
 
 
