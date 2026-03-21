@@ -10,6 +10,3 @@
 
 # logs
 *.log
-
-# application
-application.yml
