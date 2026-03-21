@@ -58,10 +58,10 @@ class OrderControllerTest {
     }
 
     //테스트용 상품 생성
-    private Product createProduct(int stock) {
+    private Product createProduct(String name, int price, int stock) {
         return productRepository.save(
-                new Product("웰컴 투 휴이엠 모이스처 밤 (100ml)", "Lordelia", 20000, stock)
-        );
+            new Product(name, "huuim", price, stock)
+    );
     }
 
     // 1.존재하지 않는 상품 주문 테스트
@@ -101,7 +101,7 @@ class OrderControllerTest {
         User user = createUser();
 
         // 재고 1개짜리 상품
-        Product product = createProduct(1);
+        Product product = createProduct("웰컴 투 휴이엠 모이스처 밤 100ml", 20000, 1);
 
         OrderCreateItemRequest item = new OrderCreateItemRequest();
         item.setProductId(product.getId());
@@ -130,7 +130,7 @@ class OrderControllerTest {
         // given
         User user = createUser();
 
-        Product product = createProduct(10);
+        Product product = createProduct("웰컴 투 휴이엠 모이스처 밤 100ml", 24000, 10);
 
         // 같은 상품 2번 넣음
         OrderCreateItemRequest item1 = new OrderCreateItemRequest();
@@ -163,8 +163,8 @@ class OrderControllerTest {
         User user = createUser();
 
         // 상품 2개 생성
-        Product product1 = createProduct(10); // 재고 10
-        Product product2 = createProduct(5);  // 재고 5
+        Product product1 = createProduct("웰컴 투 휴이엠 모이스처 밤 100ml", 24000, 10); // 재고 10
+        Product product2 = createProduct("웰컴 투 휴이엠 샴푸 1000ml", 36000, 5);  // 재고 5
 
         // 주문 요청 구성
         OrderCreateItemRequest item1 = new OrderCreateItemRequest();

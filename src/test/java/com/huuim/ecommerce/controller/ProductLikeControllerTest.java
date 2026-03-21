@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
@@ -69,13 +70,14 @@ class ProductLikeControllerTest {
         void likeProduct_success() throws Exception {
                 // given
                 User user = createUser("user2", "1234", "강필규");
-                Product product = createProduct("휴이엠 헤어에센스", "huuim", 199000, 10);
+                Product product = createProduct("로델리아 프리미엄 헤어 케어 필수템 총집합", "Lordelia", 36000, 10);
 
                 // when & then
                 mockMvc.perform(post("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw())
                                 .contentType(MediaType.APPLICATION_JSON))
+                                .andDo(print())
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.productId").value(product.getId()))
                                 .andExpect(jsonPath("$.likeCount").value(1))
@@ -95,13 +97,14 @@ class ProductLikeControllerTest {
         void likeProduct_idempotent_whenAlreadyLiked() throws Exception {
                 // given
                 User user = createUser("user2", "1234", "강필규");
-                Product product = createProduct("휴이엠 헤어에센스", "huuim", 199000, 10);
+                Product product = createProduct("로델리아 프리미엄 헤어 케어 필수템 총집합", "Lordelia", 36000, 10);
 
                 // 첫 번째 좋아요 요청
                 mockMvc.perform(post("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw())
                                 .contentType(MediaType.APPLICATION_JSON))
+                                .andDo(print())
                                 .andExpect(status().isOk());
 
                 // when & then
@@ -110,6 +113,7 @@ class ProductLikeControllerTest {
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw())
                                 .contentType(MediaType.APPLICATION_JSON))
+                                .andDo(print())
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.productId").value(product.getId()))
                                 .andExpect(jsonPath("$.likeCount").value(1))
@@ -129,19 +133,21 @@ class ProductLikeControllerTest {
         void unlikeProduct_success() throws Exception {
                 // given
                 User user = createUser("user2", "1234", "강필규");
-                Product product = createProduct("휴이엠 헤어에센스", "huuim", 199000, 10);
+                Product product = createProduct("로델리아 프리미엄 헤어 케어 필수템 총집합", "Lordelia", 36000, 10);
 
                 //먼저 좋아요를 1번 등록해 둔다.
                 mockMvc.perform(post("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw())
                                 .contentType(MediaType.APPLICATION_JSON))
+                                .andDo(print())
                                 .andExpect(status().isOk());
 
                 // when & then
                 mockMvc.perform(delete("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw()))
+                                .andDo(print())
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.productId").value(product.getId()))
                                 .andExpect(jsonPath("$.likeCount").value(0))
@@ -161,18 +167,20 @@ class ProductLikeControllerTest {
         void unlikeProduct_idempotent_whenAlreadyUnliked() throws Exception {
                 // given
                 User user = createUser("user2", "1234", "강필규");
-                Product product = createProduct("휴이엠 헤어에센스", "huuim", 199000, 10);
+                Product product = createProduct("로델리아 프리미엄 헤어 케어 필수템 총집합", "Lordelia", 36000, 10);
 
                 // 좋아요를 등록했다가 한 번 취소해서 현재 상태를 '좋아요 없음' 상태로 변경.
                 mockMvc.perform(post("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw())
                                 .contentType(MediaType.APPLICATION_JSON))
+                                .andDo(print())
                                 .andExpect(status().isOk());
 
                 mockMvc.perform(delete("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw()))
+                                .andDo(print())
                                 .andExpect(status().isOk());
 
                 // when & then
@@ -180,6 +188,7 @@ class ProductLikeControllerTest {
                 mockMvc.perform(delete("/api/v1/products/{productId}/likes", product.getId())
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw()))
+                                .andDo(print())
                                 .andExpect(status().isOk())
                                 .andExpect(jsonPath("$.productId").value(product.getId()))
                                 .andExpect(jsonPath("$.likeCount").value(0))
@@ -198,6 +207,7 @@ class ProductLikeControllerTest {
                 mockMvc.perform(post("/api/v1/products/{productId}/likes", 99999L)
                                 .header("X-Huuim-LoginId", user.getLoginId())
                                 .header("X-Huuim-LoginPw", user.getLoginPw()))
+                                .andDo(print())
                                 .andExpect(status().isBadRequest());
         }
 }
